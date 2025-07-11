@@ -1,0 +1,47 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL") // ใช้ Connection String จาก Supabase
+}
+
+model Material {
+  id          Int       @id @default(autoincrement())
+  name        String
+  description String?
+  unit        String
+  unitPrice   Float     @default(0.0)
+  stock       Int       @default(0)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  transactions Transaction[]
+}
+
+model Project {
+  id          Int       @id @default(autoincrement())
+  name        String
+  description String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  transactions Transaction[]
+}
+
+enum TransactionType {
+  RECEIVE
+  WITHDRAW
+  RETURN
+}
+
+model Transaction {
+  id          Int       @id @default(autoincrement())
+  material    Material  @relation(fields: [materialId], references: [id])
+  materialId  Int
+  project     Project?  @relation(fields: [projectId], references: [id])
+  projectId   Int?
+  quantity    Int
+  type        TransactionType
+  notes       String?
+  createdAt   DateTime  @default(now())
+}
